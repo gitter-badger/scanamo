@@ -15,15 +15,15 @@ class ScanamoAsyncTest extends FunSpec with Matchers with ScalaFutures {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   it("should put asynchronously") {
-    LocalDynamoDB.usingTable(client)("asyncFarmers")('name -> S) {
+    LocalDynamoDB.usingTable(client)("asyncFarmers")('nom -> S) {
       case class Farm(asyncAnimals: List[String])
-      case class Farmer(name: String, age: Long, farm: Farm)
+      case class Farmer(nom: String, age: Long, farm: Farm)
 
       import com.gu.scanamo.syntax._
 
       val result = for {
         _ <- ScanamoAsync.put(client)("asyncFarmers")(Farmer("McDonald", 156L, Farm(List("sheep", "cow"))))
-      } yield Scanamo.get[Farmer](client)("asyncFarmers")('name -> "McDonald")
+      } yield Scanamo.get[Farmer](client)("asyncFarmers")('nom -> "McDonald")
 
       result.futureValue should equal(Some(Right(Farmer("McDonald", 156, Farm(List("sheep", "cow"))))))
     }
